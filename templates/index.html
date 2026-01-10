@@ -43,6 +43,14 @@
                         <dd>{{ data.channel_id }}</dd>
                         <dt>Channel Feed URL</dt>
                         <dd>{{ data.feed_url }}</dd>
+                        {% if data.video_url is defined %}
+                            <dt>Video Feed URL</dt>
+                            <dd>{{ data.video_url }}</dd>
+                            <dt>Short Video Feed URL</dt>
+                            <dd>{{ data.shorts_url }}</dd>
+                            <dt>Live Stream Feed URL</dt>
+                            <dd>{{ data.live_url }}</dd>
+                        {% endif %}
                     </dl>
                 {% endif %}
             </div>
