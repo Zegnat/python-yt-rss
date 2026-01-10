@@ -49,6 +49,10 @@ def index():
         return render_template("index.html")
 
     channel_id = info.get("channel_id")
+    if not isinstance(channel_id, str):
+        flash(f"Could not extract channel ID from: {url}", category="post-info")
+        return render_template("index.html")
+
     data = {}
     if "UC" == channel_id[:2]:
         data.update({
@@ -62,7 +66,7 @@ def index():
     data.update({
         "channel_id": channel_id,
         "feed_url": f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}",
-        "webpage_url": info.get("webpage_url")
+        "webpage_url": info.get("webpage_url") or url
     })
 
     playlist_id = info.get("id")
