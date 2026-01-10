@@ -53,8 +53,11 @@ def index():
     if "UC" == channel_id[:2]:
         data.update({
             "video_url": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UULF{channel_id[2:]}",
+            "video_url_members": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UUMF{channel_id[2:]}",
             "shorts_url": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UUSH{channel_id[2:]}",
-            "live_url": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UULV{channel_id[2:]}"
+            "shorts_url_members": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UUMS{channel_id[2:]}",
+            "live_url": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UULV{channel_id[2:]}",
+            "live_url_members": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UUMV{channel_id[2:]}"
         })
     data.update({
         "channel_id": channel_id,
