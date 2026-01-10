@@ -56,9 +56,6 @@ def index():
             "shorts_url": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UUSH{channel_id[2:]}",
             "live_url": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UULV{channel_id[2:]}"
         })
-        data["video_url"] = f"https://www.youtube.com/feeds/videos.xml?playlist_id=UULF{channel_id[2:]}"
-        data["shorts_url"] = f"https://www.youtube.com/feeds/videos.xml?playlist_id=UUSH{channel_id[2:]}"
-        data["live_url"] = f"https://www.youtube.com/feeds/videos.xml?playlist_id=UULV{channel_id[2:]}"
     data.update({
         "channel_id": channel_id,
         "feed_url": f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}",
