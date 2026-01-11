@@ -49,20 +49,24 @@ def index():
         return render_template("index.html")
 
     channel_id = info.get("channel_id")
+    if not isinstance(channel_id, str):
+        flash(f"Could not extract channel ID from: {url}", category="post-info")
+        return render_template("index.html")
+
     data = {}
     if "UC" == channel_id[:2]:
         data.update({
             "video_url": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UULF{channel_id[2:]}",
+            "video_url_members": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UUMF{channel_id[2:]}",
             "shorts_url": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UUSH{channel_id[2:]}",
-            "live_url": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UULV{channel_id[2:]}"
+            "shorts_url_members": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UUMS{channel_id[2:]}",
+            "live_url": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UULV{channel_id[2:]}",
+            "live_url_members": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UUMV{channel_id[2:]}"
         })
-        data["video_url"] = f"https://www.youtube.com/feeds/videos.xml?playlist_id=UULF{channel_id[2:]}"
-        data["shorts_url"] = f"https://www.youtube.com/feeds/videos.xml?playlist_id=UUSH{channel_id[2:]}"
-        data["live_url"] = f"https://www.youtube.com/feeds/videos.xml?playlist_id=UULV{channel_id[2:]}"
     data.update({
         "channel_id": channel_id,
         "feed_url": f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}",
-        "webpage_url": info.get("webpage_url")
+        "webpage_url": info.get("webpage_url") or url
     })
 
     playlist_id = info.get("id")
