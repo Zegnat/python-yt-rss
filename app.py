@@ -6,7 +6,7 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
 @app.route("/")
-def index():
+def index() -> str:
     url = request.args.get('url', type = str)
     if not url:
         return render_template("index.html")
@@ -63,10 +63,11 @@ def index():
             "live_url": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UULV{channel_id[2:]}",
             "live_url_members": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UUMV{channel_id[2:]}"
         })
+    webpage_url = info.get("webpage_url")
     data.update({
         "channel_id": channel_id,
         "feed_url": f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}",
-        "webpage_url": info.get("webpage_url") or url
+        "webpage_url": webpage_url if isinstance(webpage_url, str) else url
     })
 
     playlist_id = info.get("id")
