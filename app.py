@@ -1,9 +1,19 @@
+from concurrent.futures import ThreadPoolExecutor
 from flask import Flask, request, render_template, flash
 import os
+import requests
 import yt_dlp
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+
+def is_feed_live(url: str) -> bool:
+    """Check if a YouTube feed URL returns a valid response (not 404)."""
+    try:
+        response = requests.head(url, timeout=5, allow_redirects=True)
+        return response.status_code == 200
+    except requests.RequestException:
+        return False
 
 @app.route("/")
 def index() -> str:
@@ -57,12 +67,20 @@ def index() -> str:
     if "UC" == channel_id[:2]:
         data.update({
             "video_url": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UULF{channel_id[2:]}",
-            "video_url_members": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UUMF{channel_id[2:]}",
             "shorts_url": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UUSH{channel_id[2:]}",
-            "shorts_url_members": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UUMS{channel_id[2:]}",
             "live_url": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UULV{channel_id[2:]}",
-            "live_url_members": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UUMV{channel_id[2:]}"
         })
+        members_urls = {
+            "video_url_members": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UUMF{channel_id[2:]}",
+            "shorts_url_members": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UUMS{channel_id[2:]}",
+            "live_url_members": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UUMV{channel_id[2:]}"
+        }
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            results = executor.map(is_feed_live, members_urls.values())
+        for key, is_live in zip(members_urls.keys(), results):
+            if is_live:
+                data[key] = members_urls[key]
+
     webpage_url = info.get("webpage_url")
     data.update({
         "channel_id": channel_id,
