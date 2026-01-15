@@ -9,7 +9,7 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
 async def check_feeds(urls: dict[str, str]) -> dict[str, str]:
     """Check multiple feed URLs concurrently and return only the live ones."""
-    async with httpx.AsyncClient(timeout=5.0) as client:
+    async with httpx.AsyncClient(timeout=5.0, http2=True) as client:
         requests = [client.head(url, follow_redirects=True) for url in urls.values()]
         responses = await asyncio.gather(*requests, return_exceptions=True)
     return {
