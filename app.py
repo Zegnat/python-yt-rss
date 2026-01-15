@@ -3,6 +3,7 @@ from flask import Flask, request, render_template, flash
 import httpx
 import os
 import yt_dlp
+from yt_dlp.utils import DownloadError
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
@@ -49,7 +50,7 @@ def index() -> str:
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
-    except yt_dlp.utils.DownloadError as e:
+    except DownloadError as e:
         if "Unsupported URL" in str(e):
             flash(f"Unsupported URL: {url}", category="post-info")
         else:
