@@ -33,14 +33,14 @@ def index() -> str:
         flash(f"Unsupported URL: {extractor}", category="post-info")
         return render_template("index.html")
 
-    ydl_opts = {
+    ydl_opts: yt_dlp._Params = {
         'allowed_extractors': [extractor.IE_NAME],
         'extract_flat': 'in_playlist',
         'extractor_args': {'youtube': {'player_client': ['web']}},
         'no_warnings': True,
         'playlist_items': '0',
         'quiet': True,
-        'simulate': True
+        'simulate': 'list_only'
     }
 
     try:
