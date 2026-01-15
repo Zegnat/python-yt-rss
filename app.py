@@ -1,19 +1,22 @@
-from concurrent.futures import ThreadPoolExecutor
+import asyncio
 from flask import Flask, request, render_template, flash
+import httpx
 import os
-import requests
 import yt_dlp
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
-def is_feed_live(url: str) -> bool:
-    """Check if a YouTube feed URL returns a valid response (not 404)."""
-    try:
-        response = requests.head(url, timeout=5, allow_redirects=True)
-        return response.status_code == 200
-    except requests.RequestException:
-        return False
+async def check_feeds(urls: dict[str, str]) -> dict[str, str]:
+    """Check multiple feed URLs concurrently and return only the live ones."""
+    async with httpx.AsyncClient(timeout=5.0) as client:
+        requests = [client.head(url, follow_redirects=True) for url in urls.values()]
+        responses = await asyncio.gather(*requests, return_exceptions=True)
+    return {
+        key: url
+        for (key, url), resp in zip(urls.items(), responses)
+        if isinstance(resp, httpx.Response) and resp.status_code == 200
+    }
 
 @app.route("/")
 def index() -> str:
@@ -75,11 +78,8 @@ def index() -> str:
             "shorts_url_members": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UUMS{channel_id[2:]}",
             "live_url_members": f"https://www.youtube.com/feeds/videos.xml?playlist_id=UUMV{channel_id[2:]}"
         }
-        with ThreadPoolExecutor(max_workers=3) as executor:
-            results = executor.map(is_feed_live, members_urls.values())
-        for key, is_live in zip(members_urls.keys(), results):
-            if is_live:
-                data[key] = members_urls[key]
+        live_members_urls = asyncio.run(check_feeds(members_urls))
+        data.update(live_members_urls)
 
     webpage_url = info.get("webpage_url")
     data.update({
